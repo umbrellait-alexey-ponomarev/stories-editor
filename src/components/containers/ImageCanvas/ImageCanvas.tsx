@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import { SketchCanvas } from '@terrylinla/react-native-sketch-canvas';
-import React, { FC, useRef, useState } from 'react';
+import React, { FC, useRef, useState, useCallback } from 'react';
 import {
   ImageURISource,
   View,
@@ -11,12 +11,7 @@ import {
   Dimensions,
 } from 'react-native';
 import {
-  Sepia,
-  Tint,
-  Grayscale,
-  Invert,
-  Polaroid,
-  Normal,
+  Matrix,
   ColorMatrix,
   concatColorMatrices,
   sepia,
@@ -26,7 +21,7 @@ import {
   polaroid,
   normal,
 } from 'react-native-color-matrix-image-filters';
-import RNSaveView from 'react-native-save-view';
+// import RNSaveView from 'react-native-save-view';
 
 import CustomButton from '../../elements/CustomButton/CustomButton';
 import DragText from '../../elements/DragText/DragText';
@@ -67,13 +62,13 @@ const filters: string[] = [
   'tint',
 ];
 
-const filter = {
-  normal: Normal,
-  sepia: Sepia,
-  wb: Grayscale,
-  polaroid: Polaroid,
-  invert: Invert,
-  tint: Tint,
+const filter: { [key: string]: Matrix[] } = {
+  normal: [normal()],
+  sepia: [sepia(1)],
+  wb: [grayscale(1)],
+  polaroid: [polaroid()],
+  invert: [invert()],
+  tint: [tint(1)],
 };
 
 const panFilter: any = new Animated.Value(0);
@@ -117,6 +112,39 @@ const ImageCanvas: FC<ImageCanvasProps> = ({ imageUri }) => {
     },
   });
 
+  const switchNext = useCallback(() => {
+    currentFilter
+      ? setCurrentFilterIndex(() => {
+          if (currentFilterIndex + 1 >= filters.length - 1) {
+            return 0;
+          }
+          return currentFilterIndex + 2;
+        })
+      : setNextFilterIndex(() => {
+          if (nextFilterIndex + 1 >= filters.length - 1) {
+            return 1;
+          }
+          return nextFilterIndex + 2;
+        });
+  }, [currentFilter, currentFilterIndex, nextFilterIndex]);
+
+  const switchPrev = useCallback(() => {
+    currentFilter
+      ? setCurrentFilterIndex(() => {
+          if (currentFilterIndex - 2 < 0) {
+            return filters.length - 1;
+          }
+          return currentFilterIndex - 2;
+        })
+      : setNextFilterIndex(() => {
+          if (nextFilterIndex - 2 < 0) {
+            return filters.length - 2;
+          }
+
+          return nextFilterIndex - 2;
+        });
+  }, [currentFilter, currentFilterIndex, nextFilterIndex]);
+
   const slideToEnd = () => {
     Animated.timing(panFilter, {
       toValue: displayWidth,
@@ -124,37 +152,15 @@ const ImageCanvas: FC<ImageCanvasProps> = ({ imageUri }) => {
       useNativeDriver: false,
     }).start(() => {
       panFilter.setValue(0);
+      panFilterLeft.setValue(0);
+
       setCurrentFilter(!currentFilter);
 
-      // if (leftDirection) {
-      currentFilter
-        ? setCurrentFilterIndex(() => {
-            if (currentFilterIndex + 1 >= filters.length - 1) {
-              return 0;
-            }
-            return currentFilterIndex + 2;
-          })
-        : setNextFilterIndex(() => {
-            if (nextFilterIndex + 1 >= filters.length - 1) {
-              return 1;
-            }
-            return nextFilterIndex + 2;
-          });
-      // } else {
-      //   currentFilter
-      //     ? setCurrentFilterIndex(() => {
-      //         if (currentFilterIndex - 1 < 0) {
-      //           return filters.length - 1;
-      //         }
-      //         return currentFilterIndex - 2;
-      //       })
-      //     : setNextFilterIndex(() => {
-      //         if (nextFilterIndex - 1 < 0) {
-      //           return filters.length - 2;
-      //         }
-      //         return nextFilterIndex - 2;
-      //       });
-      // }
+      if (leftDirection) {
+        switchNext();
+      } else {
+        switchPrev();
+      }
     });
 
     if (!leftDirection) {
@@ -164,6 +170,7 @@ const ImageCanvas: FC<ImageCanvasProps> = ({ imageUri }) => {
         useNativeDriver: false,
       }).start(() => {
         panFilterLeft.setValue(0);
+        panFilter.setValue(0);
       });
     }
   };
@@ -185,26 +192,21 @@ const ImageCanvas: FC<ImageCanvasProps> = ({ imageUri }) => {
   };
 
   const getSnapshotBase64 = () => {
-    RNSaveView.saveToPNGBase64(wrapper.current).then((res: any) => {
-      console.log(res);
-    });
+    // RNSaveView.saveToPNGBase64(wrapper.current).then((res: any) => {
+    //   console.log(res);
+    // });
   };
 
   const renderItem = ({ item }: any) => {
     return (
       <TouchableOpacity onPress={() => setColor(item)}>
         <View
-          // eslint-disable-next-line react-native/no-inline-styles
-          style={{
-            width: 25,
-            height: 25,
-            marginLeft: 10,
-
-            borderRadius: 50,
-            borderWidth: 1,
-            borderColor: 'white',
-            backgroundColor: item,
-          }}
+          style={[
+            styles.color,
+            {
+              backgroundColor: item,
+            },
+          ]}
         />
       </TouchableOpacity>
     );
@@ -253,9 +255,6 @@ const ImageCanvas: FC<ImageCanvasProps> = ({ imageUri }) => {
     }
   };
 
-  const CurrentFilter = filter[filters[currentFilterIndex]];
-  const NextFilter = filter[filters[nextFilterIndex]];
-
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.tools}>
@@ -274,7 +273,9 @@ const ImageCanvas: FC<ImageCanvasProps> = ({ imageUri }) => {
               zIndex: currentFilter ? 2 : 1,
             },
           ]}>
-          <CurrentFilter amount={1}>
+          {/* <Text style={{position: 'absolute', top: 30, zIndex: 2}}>currentFilter</Text> */}
+          <ColorMatrix
+            matrix={concatColorMatrices(filter[filters[currentFilterIndex]])}>
             <Animated.Image
               style={[
                 styles.image,
@@ -289,7 +290,7 @@ const ImageCanvas: FC<ImageCanvasProps> = ({ imageUri }) => {
               ]}
               source={imageUri}
             />
-          </CurrentFilter>
+          </ColorMatrix>
         </Animated.View>
 
         <Animated.View
@@ -301,7 +302,10 @@ const ImageCanvas: FC<ImageCanvasProps> = ({ imageUri }) => {
               zIndex: currentFilter ? 1 : 2,
             },
           ]}>
-          <NextFilter amount={1}>
+          {/* <Text style={{position: 'absolute', top: 30, zIndex: 2}}>nextFilter</Text> */}
+
+          <ColorMatrix
+            matrix={concatColorMatrices(filter[filters[nextFilterIndex]])}>
             <Animated.Image
               style={[
                 styles.image,
@@ -316,7 +320,7 @@ const ImageCanvas: FC<ImageCanvasProps> = ({ imageUri }) => {
               ]}
               source={imageUri}
             />
-          </NextFilter>
+          </ColorMatrix>
         </Animated.View>
 
         <SketchCanvas

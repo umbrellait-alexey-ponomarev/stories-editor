@@ -44,19 +44,25 @@ export const styles = StyleSheet.create({
   filters: {
     position: 'absolute',
     bottom: 0,
-    left: 0,
-    right: 0,
+    left: 12,
+    right: 12,
     zIndex: 3,
 
+    paddingHorizontal: 10,
+
+    borderRadius: 20,
     backgroundColor: 'white',
   },
   filterPreview: {
-    paddingVertical: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
     paddingHorizontal: 10,
   },
   filterPreviewImage: {
     width: 40,
     height: 60,
+
+    borderRadius: 5,
   },
   filterText: {
     width: '100%',

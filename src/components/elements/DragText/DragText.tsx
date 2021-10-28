@@ -1,41 +1,49 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { TextInput } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { TextInput, Dimensions } from 'react-native';
 import Draggable from 'react-native-draggable';
+const { width } = Dimensions.get('window');
+interface InputRef {
+  blur: () => void;
+  focus: () => void;
+}
 
 const DragText = () => {
   const [writeMode, setWriteMode] = useState(false);
   const [text, setText] = useState('111');
   const [lastPosition, setLastPosition] = useState({ x: 100, y: 100 });
   const [position, setPosition] = useState({ x: 100, y: 100 });
-  const input = useRef(null);
+  const input = useRef({} as InputRef);
 
   return (
     <Draggable
       x={position.x}
       y={position.y}
       onDragRelease={(_, _state, bounds) => {
-        console.log(bounds);
         setLastPosition({ x: bounds.left, y: bounds.top });
       }}
       onPressIn={evt => console.log(evt.nativeEvent)}
       renderSize={100}
-      renderColor="black"
       shouldReverse={writeMode}
       onShortPressRelease={() => {
         setPosition({ x: 100, y: 100 });
         setWriteMode(true);
-        input.current.focus();
+        input.current?.focus();
       }}
       touchableOpacityProps={{ activeOpacity: 1 }}>
       <TextInput
-        ref={input}
-        style={{ flexWrap: 'wrap' }}
+        ref={input as any}
+        style={{
+          width,
+          flexWrap: 'wrap',
+          color: 'white',
+          fontSize: 22,
+          paddingHorizontal: 30,
+        }}
         onSubmitEditing={() => input.current?.blur()}
         onBlur={() => {
           setPosition(lastPosition);
           setWriteMode(false);
         }}
-        style={{ color: 'white' }}
         value={text}
         onChangeText={setText}
         pointerEvents={writeMode ? 'auto' : 'none'}

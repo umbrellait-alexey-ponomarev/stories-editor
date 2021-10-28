@@ -32,6 +32,15 @@ export const styles = StyleSheet.create({
     left: 0,
     right: 0,
   },
+  color: {
+    width: 25,
+    height: 25,
+    marginLeft: 10,
+
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: 'white',
+  },
   text: {
     position: 'absolute',
     zIndex: 5,

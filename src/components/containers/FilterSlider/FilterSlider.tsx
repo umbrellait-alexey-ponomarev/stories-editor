@@ -10,6 +10,7 @@ import {
   Animated,
 } from 'react-native';
 import {
+  Matrix,
   ColorMatrix,
   concatColorMatrices,
   sepia,
@@ -64,7 +65,7 @@ const filters: string[] = [
   'tint',
 ];
 
-const filter = {
+const filter: { [key: string]: Matrix[] } = {
   normal: [normal()],
   sepia: [sepia(1)],
   wb: [grayscale(1)],
@@ -73,7 +74,7 @@ const filter = {
   tint: [tint(1)],
 };
 
-const value = new Animated.Value(0);
+const animatedValue = new Animated.Value(0);
 
 const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
   const [mode, setMode] = useState(MODE.INITIAL);
@@ -81,9 +82,7 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
   const [currentFilter, setCurrentFilter] = useState(filter.normal);
   const canvas = useRef({} as CanvasRef);
 
-  const Ready = () => (
-    <CustomButton iconName="check" onPress={() => setMode(MODE.INITIAL)} />
-  );
+  const Ready = (props: any) => <CustomButton iconName="check" {...props} />;
 
   const Tools = () => {
     switch (mode) {
@@ -96,20 +95,25 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
                 canvas.current?.undo();
               }}
             />
-            <Ready />
+            <Ready onPress={() => setMode(MODE.INITIAL)} />
           </View>
         );
 
       case MODE.TEXT:
         return (
           <View style={styles.tools}>
-            <Ready />
+            <Ready onPress={() => setMode(MODE.INITIAL)} />
           </View>
         );
       case MODE.FILTER:
         return (
           <View style={styles.tools}>
-            <Ready />
+            <Ready
+              onPress={() => {
+                setMode(MODE.INITIAL);
+                hideFilters();
+              }}
+            />
           </View>
         );
 
@@ -126,7 +130,10 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
             />
             <CustomButton
               iconName="settings"
-              onPress={() => setMode(MODE.FILTER)}
+              onPress={() => {
+                setMode(MODE.FILTER);
+                showFilters();
+              }}
             />
             <CustomButton iconName="download" onPress={() => {}} />
           </View>
@@ -163,7 +170,24 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
     );
   };
 
-  c
+  const showFilters = () => {
+    Animated.spring(animatedValue, {
+      toValue: 1,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const hideFilters = () => {
+    Animated.spring(animatedValue, {
+      toValue: 0,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const bottom = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-160, 0],
+  });
 
   return (
     <View style={styles.container}>
@@ -183,11 +207,9 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
           <FlatList data={colors} renderItem={renderColors} horizontal />
         </View>
       )}
-      {mode === MODE.FILTER && (
-        <Animated.View style={styles.filters}>
-          <FlatList data={filters} renderItem={renderFilters} horizontal />
-        </Animated.View>
-      )}
+      <Animated.View style={[styles.filters, { bottom }]}>
+        <FlatList data={filters} renderItem={renderFilters} horizontal />
+      </Animated.View>
     </View>
   );
 };

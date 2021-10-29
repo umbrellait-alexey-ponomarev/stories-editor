@@ -331,12 +331,12 @@ const ImageCanvas: FC<ImageCanvasProps> = ({ imageUri }) => {
           touchEnabled={mode === MODE.DRAW}
         />
       </View>
-      <DragText />
       {mode === MODE.DRAW && (
         <View style={styles.colors}>
           <FlatList data={colors} renderItem={renderItem} horizontal={true} />
         </View>
       )}
+      <DragText />
     </View>
   );
 };

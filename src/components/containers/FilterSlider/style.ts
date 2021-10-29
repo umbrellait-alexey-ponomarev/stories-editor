@@ -58,6 +58,10 @@ export const styles = StyleSheet.create({
     paddingBottom: 10,
     paddingHorizontal: 10,
   },
+  filterPreviewChecked: {
+    padding: 5,
+    borderRadius: 8,
+  },
   filterPreviewImage: {
     width: 40,
     height: 60,

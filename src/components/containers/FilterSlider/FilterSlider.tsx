@@ -1,4 +1,5 @@
-import React, { FC, useRef, useState } from 'react';
+/* eslint-disable react-native/no-inline-styles */
+import React, { FC, useCallback, useRef, useState } from 'react';
 import {
   View,
   ImageRequireSource,
@@ -24,6 +25,7 @@ import { SketchCanvas } from '@terrylinla/react-native-sketch-canvas';
 
 import CustomButton from '../../elements/CustomButton/CustomButton';
 import { styles } from './style';
+import DragText from '../../elements/DragText/DragText';
 
 interface FIlterSliderProps {
   imageUri: ImageRequireSource;
@@ -77,24 +79,20 @@ const filter: { [key: string]: Matrix[] } = {
 const animatedValue = new Animated.Value(0);
 
 const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
-  const [mode, setMode] = useState(MODE.INITIAL);
+  const [mode, setMode] = useState(MODE.TEXT);
   const [color, setColor] = useState('red');
   const [currentFilter, setCurrentFilter] = useState(filter.normal);
+  const [dragText, setDragText] = useState<JSX.Element[]>([]);
   const canvas = useRef({} as CanvasRef);
 
   const Ready = (props: any) => <CustomButton iconName="check" {...props} />;
 
-  const Tools = () => {
+  const Tools = useCallback(() => {
     switch (mode) {
       case MODE.DRAW:
         return (
           <View style={styles.tools}>
-            <CustomButton
-              iconName="undo"
-              onPress={() => {
-                canvas.current?.undo();
-              }}
-            />
+            <CustomButton iconName="undo" onPress={canvas.current?.undo} />
             <Ready onPress={() => setMode(MODE.INITIAL)} />
           </View>
         );
@@ -126,7 +124,22 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
             />
             <CustomButton
               iconName="letter"
-              onPress={() => setMode(MODE.TEXT)}
+              onPress={() => {
+                setDragText(prev => [
+                  ...prev,
+                  <DragText
+                    onModeChange={writeMode => {
+                      console.log(writeMode);
+                      if (writeMode) {
+                        setMode(MODE.TEXT);
+                      }
+                    }}
+                    key={prev.length}
+                    write={mode !== MODE.INITIAL}
+                  />,
+                ]);
+                setMode(MODE.TEXT);
+              }}
             />
             <CustomButton
               iconName="settings"
@@ -139,7 +152,7 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
           </View>
         );
     }
-  };
+  }, [mode]);
 
   const renderColors = ({ item }: { item: string }) => {
     return (
@@ -160,7 +173,15 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
     const filterSet = filter[item];
     return (
       <View style={styles.filterPreview}>
-        <TouchableOpacity onPress={() => setCurrentFilter(filterSet)}>
+        <TouchableOpacity
+          style={[
+            styles.filterPreviewChecked,
+            {
+              backgroundColor:
+                filterSet === currentFilter ? '#dddddd' : 'transparent',
+            },
+          ]}
+          onPress={() => setCurrentFilter(filterSet)}>
           <ColorMatrix matrix={concatColorMatrices(filterSet)}>
             <Image style={styles.filterPreviewImage} source={imageUri} />
           </ColorMatrix>
@@ -190,27 +211,39 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
   });
 
   return (
-    <View style={styles.container}>
-      <Tools />
-      <ColorMatrix matrix={concatColorMatrices(currentFilter)}>
-        <Image style={{ width, height }} source={imageUri} />
-      </ColorMatrix>
-      <SketchCanvas
-        ref={canvas as any}
-        style={styles.canvas}
-        strokeColor={color}
-        strokeWidth={5}
-        touchEnabled={mode === MODE.DRAW}
-      />
-      {mode === MODE.DRAW && (
-        <View style={styles.colors}>
-          <FlatList data={colors} renderItem={renderColors} horizontal />
-        </View>
-      )}
-      <Animated.View style={[styles.filters, { bottom }]}>
-        <FlatList data={filters} renderItem={renderFilters} horizontal />
-      </Animated.View>
-    </View>
+    <>
+      <View style={styles.container}>
+        <Tools />
+        <ColorMatrix matrix={concatColorMatrices(currentFilter)}>
+          <Image style={{ width, height }} source={imageUri} />
+        </ColorMatrix>
+        <SketchCanvas
+          ref={canvas as any}
+          style={styles.canvas}
+          strokeColor={color}
+          strokeWidth={5}
+          touchEnabled={mode === MODE.DRAW}
+        />
+        {mode === MODE.DRAW && (
+          <View style={styles.colors}>
+            <FlatList data={colors} renderItem={renderColors} horizontal />
+          </View>
+        )}
+        <Animated.View style={[styles.filters, { bottom }]}>
+          <FlatList data={filters} renderItem={renderFilters} horizontal />
+        </Animated.View>
+      </View>
+      {dragText}
+      {/* <DragText
+        onModeChange={writeMode => {
+          console.log(writeMode);
+          if (writeMode) {
+            setMode(MODE.TEXT);
+          }
+        }}
+        write={mode !== MODE.INITIAL}
+      /> */}
+    </>
   );
 };
 

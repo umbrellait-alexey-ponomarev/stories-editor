@@ -1,54 +1,136 @@
-import React, { useState, useRef } from 'react';
-import { TextInput, Dimensions } from 'react-native';
-import Draggable from 'react-native-draggable';
-const { width } = Dimensions.get('window');
+/* eslint-disable react-native/no-inline-styles */
+import React, {
+  useState,
+  useRef,
+  useMemo,
+  useCallback,
+  FC,
+  useEffect,
+} from 'react';
+import {
+  TextInput,
+  Dimensions,
+  Animated,
+  PanResponder,
+  TouchableOpacity,
+  View,
+  GestureResponderEvent,
+  PanResponderGestureState,
+} from 'react-native';
+import { styles } from './style';
 interface InputRef {
   blur: () => void;
   focus: () => void;
 }
 
-const DragText = () => {
-  const [writeMode, setWriteMode] = useState(false);
-  const [text, setText] = useState('111');
-  const [lastPosition, setLastPosition] = useState({ x: 100, y: 100 });
-  const [position, setPosition] = useState({ x: 100, y: 100 });
+interface Props {
+  write: boolean;
+  onMoveRealise?: (
+    evt: GestureResponderEvent,
+    gestureState: PanResponderGestureState,
+  ) => void;
+  onModeChange: (mode: boolean) => void;
+}
+
+const { width } = Dimensions.get('window');
+const initialCoordinates = { x: 0, y: 80 };
+
+const DragText: FC<Props> = ({ write, onMoveRealise, onModeChange }) => {
   const input = useRef({} as InputRef);
+  const pan = useRef(new Animated.ValueXY(initialCoordinates)).current;
+
+  const [writeMode, setWriteMode] = useState(write);
+  const [text, setText] = useState('');
+  const [prevCoordinates, setPrevCoordinates] = useState(initialCoordinates);
+
+  useEffect(() => {
+    onModeChange(writeMode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [writeMode]);
+
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onMoveShouldSetPanResponder: () => !writeMode,
+        onPanResponderGrant: () => {
+          pan.setOffset({
+            x: pan.x._value,
+            y: pan.y._value,
+          });
+        },
+        onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], {
+          useNativeDriver: false,
+        }),
+        onPanResponderRelease: (evt, gestureState) => {
+          if (onMoveRealise) {
+            onMoveRealise(evt, gestureState);
+          }
+
+          pan.flattenOffset();
+          setPrevCoordinates({
+            x: pan.x._value,
+            y: pan.y._value,
+          });
+        },
+      }),
+    [onMoveRealise, pan, writeMode],
+  );
+
+  const returnTextToCenter = useCallback(() => {
+    Animated.spring(pan, {
+      toValue: initialCoordinates,
+      useNativeDriver: false,
+    }).start();
+  }, [pan]);
+
+  const returnTextToPrevPosition = useCallback(() => {
+    Animated.spring(pan, {
+      toValue: prevCoordinates,
+      useNativeDriver: false,
+    }).start();
+  }, [pan, prevCoordinates]);
+
+  const onSubmitEditing = useCallback(() => {
+    returnTextToPrevPosition();
+    setWriteMode(false);
+    input.current?.blur();
+  }, [returnTextToPrevPosition]);
+
+  const onTextPress = useCallback(() => {
+    returnTextToCenter();
+    setWriteMode(true);
+    input.current.focus();
+  }, [returnTextToCenter]);
+
+  useEffect(() => {
+    console.log(write);
+    if (!write) {
+      onSubmitEditing();
+    }
+  }, [onSubmitEditing, write]);
 
   return (
-    <Draggable
-      x={position.x}
-      y={position.y}
-      onDragRelease={(_, _state, bounds) => {
-        setLastPosition({ x: bounds.left, y: bounds.top });
-      }}
-      onPressIn={evt => console.log(evt.nativeEvent)}
-      renderSize={100}
-      shouldReverse={writeMode}
-      onShortPressRelease={() => {
-        setPosition({ x: 100, y: 100 });
-        setWriteMode(true);
-        input.current?.focus();
-      }}
-      touchableOpacityProps={{ activeOpacity: 1 }}>
-      <TextInput
-        ref={input as any}
-        style={{
-          width,
-          flexWrap: 'wrap',
-          color: 'white',
-          fontSize: 22,
-          paddingHorizontal: 30,
-        }}
-        onSubmitEditing={() => input.current?.blur()}
-        onBlur={() => {
-          setPosition(lastPosition);
-          setWriteMode(false);
-        }}
-        value={text}
-        onChangeText={setText}
-        pointerEvents={writeMode ? 'auto' : 'none'}
-      />
-    </Draggable>
+    <View style={styles.container} pointerEvents="box-none">
+      <Animated.View
+        pointerEvents="box-none"
+        {...panResponder.panHandlers}
+        style={[pan.getLayout()]}>
+        <View style={[styles.wrapper, { width: writeMode ? width : 'auto' }]}>
+          <TouchableOpacity activeOpacity={1} onPress={onTextPress}>
+            <TextInput
+              ref={input as any}
+              style={styles.input}
+              // onSubmitEditing={}
+              multiline={true}
+              autoFocus={true}
+              value={text}
+              onChangeText={setText}
+              pointerEvents={writeMode ? 'auto' : 'none'}
+            />
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+    </View>
   );
 };
 

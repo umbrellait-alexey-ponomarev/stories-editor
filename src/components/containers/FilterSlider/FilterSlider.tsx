@@ -26,6 +26,7 @@ import { SketchCanvas } from '@terrylinla/react-native-sketch-canvas';
 import CustomButton from '../../elements/CustomButton/CustomButton';
 import { styles } from './style';
 import DragText from '../../elements/DragText/DragText';
+import { colors } from '../../../constants/UIColors';
 
 interface FIlterSliderProps {
   imageUri: ImageRequireSource;
@@ -33,6 +34,11 @@ interface FIlterSliderProps {
 
 interface CanvasRef {
   undo: () => void;
+}
+
+interface DragItem {
+  id: number;
+  Component: JSX.Element;
 }
 
 const { width, height } = Dimensions.get('window');
@@ -43,20 +49,6 @@ const MODE = {
   DRAW: 'DRAW',
   TEXT: 'TEXT',
 };
-
-const colors: string[] = [
-  'black',
-  'red',
-  'yellow',
-  'orange',
-  'blue',
-  'white',
-  'green',
-  'purple',
-  'pink',
-  '#ff68d7',
-  '#8dc9ff',
-];
 
 const filters: string[] = [
   'normal',
@@ -79,10 +71,10 @@ const filter: { [key: string]: Matrix[] } = {
 const animatedValue = new Animated.Value(0);
 
 const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
-  const [mode, setMode] = useState(MODE.TEXT);
+  const [mode, setMode] = useState(MODE.INITIAL);
   const [color, setColor] = useState('red');
   const [currentFilter, setCurrentFilter] = useState(filter.normal);
-  const [dragText, setDragText] = useState<JSX.Element[]>([]);
+  const [dragText, setDragText] = useState<DragItem[]>([]);
   const canvas = useRef({} as CanvasRef);
 
   const Ready = (props: any) => <CustomButton iconName="check" {...props} />;
@@ -97,12 +89,16 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
           </View>
         );
 
-      case MODE.TEXT:
-        return (
-          <View style={styles.tools}>
-            <Ready onPress={() => setMode(MODE.INITIAL)} />
-          </View>
-        );
+      // case MODE.TEXT:
+      //   return (
+      //     <View style={styles.tools}>
+      //       <Ready
+      //         onPress={() => {
+      //           setMode(MODE.INITIAL);
+      //         }}
+      //       />
+      //     </View>
+      //   );
       case MODE.FILTER:
         return (
           <View style={styles.tools}>
@@ -115,7 +111,7 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
           </View>
         );
 
-      default:
+      case MODE.INITIAL:
         return (
           <View style={styles.tools}>
             <CustomButton
@@ -125,20 +121,23 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
             <CustomButton
               iconName="letter"
               onPress={() => {
-                setDragText(prev => [
-                  ...prev,
+                setMode(MODE.TEXT);
+
+                const id = Math.random();
+                const Component = (
                   <DragText
-                    onModeChange={writeMode => {
-                      console.log(writeMode);
+                    key={id}
+                    onModeChange={(writeMode: boolean) => {
                       if (writeMode) {
                         setMode(MODE.TEXT);
+                      } else {
+                        setMode(MODE.INITIAL);
                       }
                     }}
-                    key={prev.length}
-                    write={mode !== MODE.INITIAL}
-                  />,
-                ]);
-                setMode(MODE.TEXT);
+                  />
+                );
+
+                setDragText(prev => [...prev, { id, Component }]);
               }}
             />
             <CustomButton
@@ -151,6 +150,8 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
             <CustomButton iconName="download" onPress={() => {}} />
           </View>
         );
+      default:
+        return null;
     }
   }, [mode]);
 
@@ -233,16 +234,7 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
           <FlatList data={filters} renderItem={renderFilters} horizontal />
         </Animated.View>
       </View>
-      {dragText}
-      {/* <DragText
-        onModeChange={writeMode => {
-          console.log(writeMode);
-          if (writeMode) {
-            setMode(MODE.TEXT);
-          }
-        }}
-        write={mode !== MODE.INITIAL}
-      /> */}
+      {dragText.map(item => item.Component)}
     </>
   );
 };

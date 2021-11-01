@@ -4,6 +4,7 @@ import Drawing from './drawing.svg';
 import Letter from './letter.svg';
 import Check from './check.svg';
 import Settings from './settings.svg';
+import Palitra from './palitra.svg';
 
 export const icons = {
   undo: UndoIcon,
@@ -12,4 +13,5 @@ export const icons = {
   letter: Letter,
   check: Check,
   settings: Settings,
+  palitra: Palitra,
 };

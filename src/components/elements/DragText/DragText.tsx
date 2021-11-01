@@ -16,7 +16,11 @@ import {
   View,
   GestureResponderEvent,
   PanResponderGestureState,
+  FlatList,
 } from 'react-native';
+import { colors } from '../../../constants/UIColors';
+
+import CustomButton from '../CustomButton/CustomButton';
 import { styles } from './style';
 interface InputRef {
   blur: () => void;
@@ -24,7 +28,6 @@ interface InputRef {
 }
 
 interface Props {
-  write: boolean;
   onMoveRealise?: (
     evt: GestureResponderEvent,
     gestureState: PanResponderGestureState,
@@ -35,11 +38,12 @@ interface Props {
 const { width } = Dimensions.get('window');
 const initialCoordinates = { x: 0, y: 80 };
 
-const DragText: FC<Props> = ({ write, onMoveRealise, onModeChange }) => {
+const DragText: FC<Props> = ({ onMoveRealise, onModeChange }) => {
   const input = useRef({} as InputRef);
-  const pan = useRef(new Animated.ValueXY(initialCoordinates)).current;
+  const pan = useRef<any>(new Animated.ValueXY(initialCoordinates)).current;
 
-  const [writeMode, setWriteMode] = useState(write);
+  const [writeMode, setWriteMode] = useState(true);
+  const [color, setColor] = useState('white');
   const [text, setText] = useState('');
   const [prevCoordinates, setPrevCoordinates] = useState(initialCoordinates);
 
@@ -102,15 +106,28 @@ const DragText: FC<Props> = ({ write, onMoveRealise, onModeChange }) => {
     input.current.focus();
   }, [returnTextToCenter]);
 
-  useEffect(() => {
-    console.log(write);
-    if (!write) {
-      onSubmitEditing();
-    }
-  }, [onSubmitEditing, write]);
+  const renderColors = ({ item }: { item: string }) => {
+    return (
+      <TouchableOpacity onPress={() => setColor(item)}>
+        <View style={[styles.color, { backgroundColor: item }]} />
+      </TouchableOpacity>
+    );
+  };
 
   return (
-    <View style={styles.container} pointerEvents="box-none">
+    <View
+      style={[styles.container, { zIndex: writeMode ? 100 : 10 }]}
+      pointerEvents={writeMode ? 'auto' : 'box-none'}>
+      {writeMode && (
+        <>
+          <View style={styles.tools}>
+            <CustomButton iconName="check" onPress={onSubmitEditing} />
+          </View>
+          <View style={styles.colors}>
+            <FlatList data={colors} renderItem={renderColors} horizontal />
+          </View>
+        </>
+      )}
       <Animated.View
         pointerEvents="box-none"
         {...panResponder.panHandlers}
@@ -119,8 +136,7 @@ const DragText: FC<Props> = ({ write, onMoveRealise, onModeChange }) => {
           <TouchableOpacity activeOpacity={1} onPress={onTextPress}>
             <TextInput
               ref={input as any}
-              style={styles.input}
-              // onSubmitEditing={}
+              style={[styles.input, { color }]}
               multiline={true}
               autoFocus={true}
               value={text}

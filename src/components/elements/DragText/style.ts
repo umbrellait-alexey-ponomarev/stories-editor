@@ -22,5 +22,29 @@ export const styles = StyleSheet.create({
     flexWrap: 'wrap',
     color: 'white',
     fontSize: 22,
+    fontWeight: 'bold',
+  },
+  tools: {
+    position: 'absolute',
+    top: 56,
+    right: 0,
+    left: 0,
+
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  color: {
+    width: 20,
+    height: 20,
+
+    borderRadius: 50,
+    marginRight: 10,
+  },
+  colors: {
+    position: 'absolute',
+    top: 100,
+    left: 20,
+    right: 20,
   },
 });

@@ -12,6 +12,7 @@ export const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 2,
+    elevation: 3,
   },
   color: {
     width: 25,
@@ -34,6 +35,7 @@ export const styles = StyleSheet.create({
     top: 0,
     left: 0,
     zIndex: 5,
+    elevation: 6,
 
     width: '100%',
     paddingTop: 10,

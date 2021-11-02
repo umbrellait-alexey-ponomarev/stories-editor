@@ -116,7 +116,10 @@ const DragText: FC<Props> = ({ onMoveRealise, onModeChange }) => {
 
   return (
     <View
-      style={[styles.container, { zIndex: writeMode ? 100 : 10 }]}
+      style={[
+        styles.container,
+        { zIndex: writeMode ? 100 : 10, elevation: writeMode ? 101 : 11 },
+      ]}
       pointerEvents={writeMode ? 'auto' : 'box-none'}>
       {writeMode && (
         <>
@@ -133,17 +136,28 @@ const DragText: FC<Props> = ({ onMoveRealise, onModeChange }) => {
         {...panResponder.panHandlers}
         style={[pan.getLayout()]}>
         <View style={[styles.wrapper, { width: writeMode ? width : 'auto' }]}>
-          <TouchableOpacity activeOpacity={1} onPress={onTextPress}>
-            <TextInput
-              ref={input as any}
-              style={[styles.input, { color }]}
-              multiline={true}
-              autoFocus={true}
-              value={text}
-              onChangeText={setText}
-              pointerEvents={writeMode ? 'auto' : 'none'}
-            />
-          </TouchableOpacity>
+          <TextInput
+            ref={input as any}
+            style={[styles.input, { color }]}
+            multiline={true}
+            autoFocus={true}
+            value={text}
+            onChangeText={setText}
+            pointerEvents={writeMode ? 'auto' : 'none'}
+          />
+          <TouchableOpacity
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 1,
+              elevation: 2,
+            }}
+            activeOpacity={1}
+            onPress={onTextPress}
+          />
         </View>
       </Animated.View>
     </View>

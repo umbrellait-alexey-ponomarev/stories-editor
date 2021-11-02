@@ -77,6 +77,10 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
   const [dragText, setDragText] = useState<DragItem[]>([]);
   const canvas = useRef({} as CanvasRef);
 
+  const undo = useCallback(() => {
+    canvas.current?.undo();
+  }, [canvas]);
+
   const Ready = (props: any) => <CustomButton iconName="check" {...props} />;
 
   const Tools = useCallback(() => {
@@ -84,21 +88,14 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
       case MODE.DRAW:
         return (
           <View style={styles.tools}>
-            <CustomButton iconName="undo" onPress={canvas.current?.undo} />
-            <Ready onPress={() => setMode(MODE.INITIAL)} />
+            <CustomButton iconName="undo" onPress={undo} />
+            <Ready
+              onPress={() => {
+                setMode(MODE.INITIAL);
+              }}
+            />
           </View>
         );
-
-      // case MODE.TEXT:
-      //   return (
-      //     <View style={styles.tools}>
-      //       <Ready
-      //         onPress={() => {
-      //           setMode(MODE.INITIAL);
-      //         }}
-      //       />
-      //     </View>
-      //   );
       case MODE.FILTER:
         return (
           <View style={styles.tools}>
@@ -153,7 +150,7 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
       default:
         return null;
     }
-  }, [mode]);
+  }, [mode, undo]);
 
   const renderColors = ({ item }: { item: string }) => {
     return (
@@ -214,7 +211,6 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
   return (
     <>
       <View style={styles.container}>
-        <Tools />
         <ColorMatrix matrix={concatColorMatrices(currentFilter)}>
           <Image style={{ width, height }} source={imageUri} />
         </ColorMatrix>
@@ -225,6 +221,7 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
           strokeWidth={5}
           touchEnabled={mode === MODE.DRAW}
         />
+        <Tools />
         {mode === MODE.DRAW && (
           <View style={styles.colors}>
             <FlatList data={colors} renderItem={renderColors} horizontal />

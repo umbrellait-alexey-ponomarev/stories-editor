@@ -17,10 +17,8 @@
     "react-native-canvas": "^0.1.38",
     "react-native-color-matrix-image-filters": "^5.2.10",
     "react-native-draggable": "^3.3.0",
-    "react-native-save-view": "^0.2.3",
     "react-native-svg": "^12.1.1",
-    "react-native-swipe-gestures": "^1.0.5",
-    "react-native-webview": "^11.14.1"
+    "react-native-swipe-gestures": "^1.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

@@ -7,6 +7,7 @@ export const styles = StyleSheet.create({
     top: 0,
     left: 0,
     zIndex: 10,
+    elevation: 11,
 
     width,
     height,

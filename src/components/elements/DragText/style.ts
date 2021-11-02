@@ -49,4 +49,13 @@ export const styles = StyleSheet.create({
     left: 20,
     right: 20,
   },
+  touchWrapper: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
+    elevation: 2,
+  },
 });

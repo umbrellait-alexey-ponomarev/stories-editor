@@ -7,6 +7,9 @@ import {
   FlatList,
   Text,
   Animated,
+  Dimensions,
+  PanResponderGestureState,
+  GestureResponderEvent,
 } from 'react-native';
 import {
   ColorMatrix,
@@ -20,12 +23,23 @@ import { colors, red } from '../../../constants/UIColors';
 import { filter, filters } from '../../../constants/Filters';
 import { FIlterSliderProps, CanvasRef, DragItem } from './types';
 import { styles } from './style';
+import { BinIcon } from '../../../assets/SVG';
+import { BIN_SIZE } from '../../../constants/sizes';
+
+const { width, height } = Dimensions.get('window');
 
 const MODE = {
   INITIAL: '',
   FILTER: 'FILTER',
   DRAW: 'DRAW',
   TEXT: 'TEXT',
+};
+
+const BIN_COORDINATES = {
+  bottom: 20,
+  left: (width - BIN_SIZE) / 2,
+  top: height - BIN_SIZE,
+  right: (width + BIN_SIZE) / 2,
 };
 
 const animatedValue = new Animated.Value(0);
@@ -35,7 +49,52 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
   const [color, setColor] = useState(red);
   const [currentFilter, setCurrentFilter] = useState(filter.normal);
   const [dragText, setDragText] = useState<DragItem[]>([]);
+  const [showBin, setShowBin] = useState(false);
   const canvas = useRef({} as CanvasRef);
+
+  const removeTextItem = useCallback((id: number) => {
+    setDragText(prev => {
+      const currentItemIndex = prev.findIndex(item => item.id === id);
+      const newDragText = [...prev];
+      newDragText.splice(currentItemIndex, 1);
+      console.log({ prev }, { newDragText });
+
+      return newDragText;
+    });
+
+    // setDragText(newDragText as any);
+  }, []);
+
+  const onTextMove = useCallback((event: PanResponderGestureState) => {
+    const { moveX, moveY } = event;
+
+    if (
+      moveX >= BIN_COORDINATES.left &&
+      moveX <= BIN_COORDINATES.right &&
+      moveY >= BIN_COORDINATES.top &&
+      moveY >= BIN_COORDINATES.bottom
+    ) {
+      setShowBin(true);
+    } else {
+      setShowBin(false);
+    }
+  }, []);
+
+  const onMoveRealise = useCallback(
+    (
+      evt: GestureResponderEvent,
+      gestureState: PanResponderGestureState,
+      id: number,
+    ) => {
+      const { moveX, moveY } = gestureState;
+
+      if (moveX >= BIN_COORDINATES.left || moveY >= BIN_COORDINATES.top) {
+        removeTextItem(id);
+        setShowBin(false);
+      }
+    },
+    [removeTextItem],
+  );
 
   const undo = useCallback(() => {
     canvas.current?.undo();
@@ -84,6 +143,10 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
                 const Component = (
                   <DragText
                     key={id}
+                    onMove={onTextMove}
+                    onMoveRealise={(evt, gestureState) =>
+                      onMoveRealise(evt, gestureState, id)
+                    }
                     onModeChange={(writeMode: boolean) => {
                       if (writeMode) {
                         setMode(MODE.TEXT);
@@ -110,7 +173,7 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
       default:
         return null;
     }
-  }, [mode, undo]);
+  }, [mode, onMoveRealise, onTextMove, undo]);
 
   const renderColors = ({ item }: { item: string }) => {
     return (
@@ -191,6 +254,11 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
           <FlatList data={filters} renderItem={renderFilters} horizontal />
         </Animated.View>
         {dragText.map(item => item.Component)}
+        {showBin && (
+          <View style={styles.bin}>
+            <BinIcon color={red} width={BIN_SIZE} height={BIN_SIZE} />
+          </View>
+        )}
       </View>
     </>
   );

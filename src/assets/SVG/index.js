@@ -15,3 +15,5 @@ export const icons = {
   settings: Settings,
   palitra: Palitra,
 };
+
+export { default as BinIcon } from './bin.svg';

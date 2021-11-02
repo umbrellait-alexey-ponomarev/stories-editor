@@ -25,7 +25,13 @@ import { DragTextProps, InputRef } from './types';
 const { width } = Dimensions.get('window');
 const initialCoordinates = { x: 0, y: 80 };
 
-const DragText: FC<DragTextProps> = ({ onMoveRealise, onModeChange }) => {
+const DragText: FC<DragTextProps> = ({
+  onMoveRealise,
+  onModeChange,
+  onMove = () => {},
+  onPressIn = () => {},
+  onPressOut = () => {},
+}) => {
   const input = useRef({} as InputRef);
   const pan = useRef<any>(new Animated.ValueXY(initialCoordinates)).current;
 
@@ -49,9 +55,13 @@ const DragText: FC<DragTextProps> = ({ onMoveRealise, onModeChange }) => {
             y: pan.y._value,
           });
         },
-        onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], {
-          useNativeDriver: false,
-        }),
+        onPanResponderMove: (_, gestureState) => {
+          onMove(gestureState);
+          pan.setValue({
+            x: gestureState.dx,
+            y: gestureState.dy,
+          });
+        },
         onPanResponderRelease: (evt, gestureState) => {
           if (onMoveRealise) {
             onMoveRealise(evt, gestureState);
@@ -64,7 +74,7 @@ const DragText: FC<DragTextProps> = ({ onMoveRealise, onModeChange }) => {
           });
         },
       }),
-    [onMoveRealise, pan, writeMode],
+    [onMove, onMoveRealise, pan, writeMode],
   );
 
   const returnTextToCenter = useCallback(() => {
@@ -133,17 +143,11 @@ const DragText: FC<DragTextProps> = ({ onMoveRealise, onModeChange }) => {
             pointerEvents={writeMode ? 'auto' : 'none'}
           />
           <TouchableOpacity
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 1,
-              elevation: 2,
-            }}
+            style={styles.touchWrapper}
             activeOpacity={1}
             onPress={onTextPress}
+            onPressIn={onPressIn}
+            onPressOut={onPressOut}
           />
         </View>
       </Animated.View>

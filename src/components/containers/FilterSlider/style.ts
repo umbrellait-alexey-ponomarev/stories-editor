@@ -1,4 +1,5 @@
 import { StyleSheet, Dimensions } from 'react-native';
+import { BIN_SIZE } from '../../../constants/sizes';
 import { white } from '../../../constants/UIColors';
 
 const { width, height } = Dimensions.get('window');
@@ -84,5 +85,16 @@ export const styles = StyleSheet.create({
     padding: 5,
     textAlign: 'center',
     fontSize: 9,
+  },
+  bin: {
+    position: 'absolute',
+    bottom: 10,
+    left: 0,
+    right: 0,
+
+    height: BIN_SIZE,
+
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

@@ -6,9 +6,12 @@ export interface InputRef {
 }
 
 export interface DragTextProps {
+  onMove?: (event: PanResponderGestureState) => void;
   onMoveRealise?: (
     evt: GestureResponderEvent,
     gestureState: PanResponderGestureState,
   ) => void;
   onModeChange: (mode: boolean) => void;
+  onPressIn?: () => void;
+  onPressOut?: () => void;
 }

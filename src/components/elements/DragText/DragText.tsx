@@ -14,31 +14,18 @@ import {
   PanResponder,
   TouchableOpacity,
   View,
-  GestureResponderEvent,
-  PanResponderGestureState,
   FlatList,
 } from 'react-native';
 import { colors } from '../../../constants/UIColors';
 
 import CustomButton from '../CustomButton/CustomButton';
 import { styles } from './style';
-interface InputRef {
-  blur: () => void;
-  focus: () => void;
-}
-
-interface Props {
-  onMoveRealise?: (
-    evt: GestureResponderEvent,
-    gestureState: PanResponderGestureState,
-  ) => void;
-  onModeChange: (mode: boolean) => void;
-}
+import { DragTextProps, InputRef } from './types';
 
 const { width } = Dimensions.get('window');
 const initialCoordinates = { x: 0, y: 80 };
 
-const DragText: FC<Props> = ({ onMoveRealise, onModeChange }) => {
+const DragText: FC<DragTextProps> = ({ onMoveRealise, onModeChange }) => {
   const input = useRef({} as InputRef);
   const pan = useRef<any>(new Animated.ValueXY(initialCoordinates)).current;
 

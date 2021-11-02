@@ -2,11 +2,7 @@ import React, { FC } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { icons } from '../../../assets/SVG';
 import { styles } from './style';
-
-interface CustomButtonProps {
-  iconName: string;
-  onPress: () => void;
-}
+import { CustomButtonProps } from './types';
 
 const CustomButton: FC<CustomButtonProps> = props => {
   const { iconName } = props;

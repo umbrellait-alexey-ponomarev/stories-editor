@@ -1,4 +1,5 @@
 import { StyleSheet, Dimensions } from 'react-native';
+import { white } from '../../../constants/UIColors';
 const { width, height } = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
@@ -21,13 +22,13 @@ export const styles = StyleSheet.create({
   input: {
     textAlign: 'center',
     flexWrap: 'wrap',
-    color: 'white',
+    color: white,
     fontSize: 22,
     fontWeight: 'bold',
   },
   tools: {
     position: 'absolute',
-    top: 56,
+    top: 10,
     right: 0,
     left: 0,
 
@@ -44,7 +45,7 @@ export const styles = StyleSheet.create({
   },
   colors: {
     position: 'absolute',
-    top: 100,
+    top: 60,
     left: 20,
     right: 20,
   },

@@ -1,13 +1,25 @@
+export const black = '#000000';
+export const white = '#ffffff';
+export const red = '#ff0000';
+export const yellow = '#ffe700';
+export const green = '#008744';
+export const pink = '#f000ff';
+export const blue = '#001eff';
+export const lightBlue = '#4deeea';
+export const orange = '#ffa700';
+export const purple = '#b967ff';
+export const brown = '#854442';
+
 export const colors: string[] = [
-  'black',
-  'red',
-  'yellow',
-  'orange',
-  'blue',
-  'white',
-  'green',
-  'purple',
-  'pink',
-  '#ff68d7',
-  '#8dc9ff',
+  black,
+  white,
+  yellow,
+  orange,
+  red,
+  blue,
+  lightBlue,
+  green,
+  purple,
+  pink,
+  brown,
 ];

@@ -1,4 +1,7 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
+import { white } from '../../../constants/UIColors';
+
+const { width, height } = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
   container: {
@@ -21,14 +24,15 @@ export const styles = StyleSheet.create({
 
     borderRadius: 50,
     borderWidth: 1,
-    borderColor: 'white',
+    borderColor: white,
   },
   colors: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 40,
     left: 0,
     right: 0,
-    zIndex: 3,
+    zIndex: 13,
+    elevation: 14,
   },
   tools: {
     position: 'absolute',
@@ -43,17 +47,22 @@ export const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-evenly',
   },
+  image: {
+    width,
+    height: height + 18,
+  },
   filters: {
     position: 'absolute',
     bottom: 0,
     left: 12,
     right: 12,
-    zIndex: 3,
+    zIndex: 12,
+    elevation: 13,
 
     paddingHorizontal: 10,
 
     borderRadius: 20,
-    backgroundColor: 'white',
+    backgroundColor: white,
   },
   filterPreview: {
     paddingTop: 20,

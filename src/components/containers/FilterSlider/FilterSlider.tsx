@@ -2,46 +2,24 @@
 import React, { FC, useCallback, useRef, useState } from 'react';
 import {
   View,
-  ImageRequireSource,
   Image,
-  Dimensions,
   TouchableOpacity,
   FlatList,
   Text,
   Animated,
 } from 'react-native';
 import {
-  Matrix,
   ColorMatrix,
   concatColorMatrices,
-  sepia,
-  grayscale,
-  invert,
-  polaroid,
-  tint,
-  normal,
 } from 'react-native-color-matrix-image-filters';
 import { SketchCanvas } from '@terrylinla/react-native-sketch-canvas';
 
 import CustomButton from '../../elements/CustomButton/CustomButton';
-import { styles } from './style';
 import DragText from '../../elements/DragText/DragText';
-import { colors } from '../../../constants/UIColors';
-
-interface FIlterSliderProps {
-  imageUri: ImageRequireSource;
-}
-
-interface CanvasRef {
-  undo: () => void;
-}
-
-interface DragItem {
-  id: number;
-  Component: JSX.Element;
-}
-
-const { width, height } = Dimensions.get('window');
+import { colors, red } from '../../../constants/UIColors';
+import { filter, filters } from '../../../constants/Filters';
+import { FIlterSliderProps, CanvasRef, DragItem } from './types';
+import { styles } from './style';
 
 const MODE = {
   INITIAL: '',
@@ -50,29 +28,11 @@ const MODE = {
   TEXT: 'TEXT',
 };
 
-const filters: string[] = [
-  'normal',
-  'sepia',
-  'wb',
-  'polaroid',
-  'invert',
-  'tint',
-];
-
-const filter: { [key: string]: Matrix[] } = {
-  normal: [normal()],
-  sepia: [sepia(1)],
-  wb: [grayscale(1)],
-  polaroid: [polaroid()],
-  invert: [invert()],
-  tint: [tint(1)],
-};
-
 const animatedValue = new Animated.Value(0);
 
 const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
   const [mode, setMode] = useState(MODE.INITIAL);
-  const [color, setColor] = useState('red');
+  const [color, setColor] = useState(red);
   const [currentFilter, setCurrentFilter] = useState(filter.normal);
   const [dragText, setDragText] = useState<DragItem[]>([]);
   const canvas = useRef({} as CanvasRef);
@@ -205,14 +165,14 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
 
   const bottom = animatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: [-160, 0],
+    outputRange: [-160, 10],
   });
 
   return (
     <>
       <View style={styles.container}>
         <ColorMatrix matrix={concatColorMatrices(currentFilter)}>
-          <Image style={{ width, height }} source={imageUri} />
+          <Image style={styles.image} source={imageUri} />
         </ColorMatrix>
         <SketchCanvas
           ref={canvas as any}
@@ -230,8 +190,8 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
         <Animated.View style={[styles.filters, { bottom }]}>
           <FlatList data={filters} renderItem={renderFilters} horizontal />
         </Animated.View>
+        {dragText.map(item => item.Component)}
       </View>
-      {dragText.map(item => item.Component)}
     </>
   );
 };

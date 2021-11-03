@@ -105,5 +105,5 @@ export const styles = StyleSheet.create({
     elevation: 4,
     transform: [{ rotate: '-90deg' }],
   },
-  slider: { width: 150, height: 10 },
+  slider: { width: 150, height: 30 },
 });

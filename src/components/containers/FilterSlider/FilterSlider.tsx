@@ -7,7 +7,6 @@ import {
   FlatList,
   Text,
   Animated,
-  Dimensions,
   PanResponderGestureState,
   GestureResponderEvent,
 } from 'react-native';
@@ -20,27 +19,19 @@ import { SketchCanvas } from '@terrylinla/react-native-sketch-canvas';
 import CustomButton from '../../elements/CustomButton/CustomButton';
 import DragText from '../../elements/DragText/DragText';
 import { colors, red, white } from '../../../constants/UIColors';
-import { filter, filters } from '../../../constants/Filters';
+import { filter, filters } from '../../../constants/filters';
 import { FIlterSliderProps, CanvasRef, DragItem } from './types';
 import { styles } from './style';
 import { BinIcon } from '../../../assets/SVG';
-import { BIN_SIZE } from '../../../constants/sizes';
+import { BIN_SIZE, BIN_COORDINATES } from '../../../constants/sizes';
 import Slider from '@react-native-community/slider';
-
-const { width, height } = Dimensions.get('window');
+import { REMOVE_TEXT_TIME } from '../../../constants/timing';
 
 const MODE = {
   INITIAL: '',
   FILTER: 'FILTER',
   DRAW: 'DRAW',
   TEXT: 'TEXT',
-};
-
-const BIN_COORDINATES = {
-  bottom: 20,
-  left: (width - BIN_SIZE) / 2,
-  top: height - BIN_SIZE - 20,
-  right: (width + BIN_SIZE) / 2,
 };
 
 const animatedValue = new Animated.Value(0);
@@ -59,12 +50,9 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
       const currentItemIndex = prev.findIndex(item => item.id === id);
       const newDragText = [...prev];
       newDragText.splice(currentItemIndex, 1);
-      console.log({ prev }, { newDragText });
 
       return newDragText;
     });
-
-    // setDragText(newDragText as any);
   }, []);
 
   const onTextMove = useCallback((event: PanResponderGestureState) => {
@@ -96,7 +84,7 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
         moveY >= BIN_COORDINATES.top &&
         moveY >= BIN_COORDINATES.bottom
       ) {
-        removeTextItem(id);
+        setTimeout(() => removeTextItem(id), REMOVE_TEXT_TIME);
         setShowBin(false);
       }
     },

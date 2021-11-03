@@ -14,4 +14,5 @@ export interface DragTextProps {
   onModeChange: (mode: boolean) => void;
   onPressIn?: () => void;
   onPressOut?: () => void;
+  showRemoveAnimation?: Boolean;
 }

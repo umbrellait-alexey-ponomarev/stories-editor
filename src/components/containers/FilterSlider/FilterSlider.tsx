@@ -19,12 +19,13 @@ import { SketchCanvas } from '@terrylinla/react-native-sketch-canvas';
 
 import CustomButton from '../../elements/CustomButton/CustomButton';
 import DragText from '../../elements/DragText/DragText';
-import { colors, red } from '../../../constants/UIColors';
+import { colors, red, white } from '../../../constants/UIColors';
 import { filter, filters } from '../../../constants/Filters';
 import { FIlterSliderProps, CanvasRef, DragItem } from './types';
 import { styles } from './style';
 import { BinIcon } from '../../../assets/SVG';
 import { BIN_SIZE } from '../../../constants/sizes';
+import Slider from '@react-native-community/slider';
 
 const { width, height } = Dimensions.get('window');
 
@@ -47,6 +48,7 @@ const animatedValue = new Animated.Value(0);
 const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
   const [mode, setMode] = useState(MODE.INITIAL);
   const [color, setColor] = useState(red);
+  const [brushSize, setBrushSize] = useState(5);
   const [currentFilter, setCurrentFilter] = useState(filter.normal);
   const [dragText, setDragText] = useState<DragItem[]>([]);
   const [showBin, setShowBin] = useState(false);
@@ -249,14 +251,29 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
           ref={canvas as any}
           style={styles.canvas}
           strokeColor={color}
-          strokeWidth={5}
+          strokeWidth={brushSize}
           touchEnabled={mode === MODE.DRAW}
         />
         <Tools />
         {mode === MODE.DRAW && (
-          <View style={styles.colors}>
-            <FlatList data={colors} renderItem={renderColors} horizontal />
-          </View>
+          <>
+            <View style={styles.sliderWrapper}>
+              <Slider
+                vertical={true}
+                style={styles.slider}
+                minimumValue={3}
+                maximumValue={34}
+                minimumTrackTintColor={white}
+                maximumTrackTintColor={white}
+                onValueChange={setBrushSize}
+                value={brushSize}
+                thumbTintColor={white}
+              />
+            </View>
+            <View style={styles.colors}>
+              <FlatList data={colors} renderItem={renderColors} horizontal />
+            </View>
+          </>
         )}
         <Animated.View style={[styles.filters, { bottom }]}>
           <FlatList data={filters} renderItem={renderFilters} horizontal />

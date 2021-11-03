@@ -61,7 +61,7 @@ export const styles = StyleSheet.create({
   sliderWrapper: {
     position: 'absolute',
     top: 300,
-    left: -50,
+    left: -58,
     transform: [{ rotate: '-90deg' }],
   },
   slider: { width: 150, height: 10 },

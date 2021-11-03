@@ -97,4 +97,13 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  sliderWrapper: {
+    position: 'absolute',
+    top: 300,
+    left: -58,
+    zIndex: 3,
+    elevation: 4,
+    transform: [{ rotate: '-90deg' }],
+  },
+  slider: { width: 150, height: 10 },
 });

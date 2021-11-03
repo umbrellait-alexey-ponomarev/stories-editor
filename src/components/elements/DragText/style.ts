@@ -58,4 +58,11 @@ export const styles = StyleSheet.create({
     zIndex: 1,
     elevation: 2,
   },
+  sliderWrapper: {
+    position: 'absolute',
+    top: 300,
+    left: -50,
+    transform: [{ rotate: '-90deg' }],
+  },
+  slider: { width: 150, height: 10 },
 });

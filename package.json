@@ -10,6 +10,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
+    "@react-native-community/slider": "^4.1.10",
     "@terrylinla/react-native-sketch-canvas": "^0.8.0",
     "fbjs": "^0.8.18",
     "react": "17.0.2",

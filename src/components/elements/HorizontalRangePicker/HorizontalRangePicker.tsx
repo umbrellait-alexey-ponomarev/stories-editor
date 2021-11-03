@@ -3,7 +3,7 @@ import { View, Animated, PanResponder } from 'react-native';
 import { styles } from './style';
 
 interface HorizontalRangePickerProps {
-  onChange?: () => void;
+  onChange?: (value: number) => void;
   maxValue?: number;
   minValue?: number;
 }
@@ -18,6 +18,7 @@ const HorizontalRangePicker: FC<HorizontalRangePickerProps> = ({
     return PanResponder.create({
       onMoveShouldSetPanResponder: () => true,
       onPanResponderGrant: () => {
+        console.log('111', range.y._value);
         range.setOffset({
           x: range.x._value,
           y: range.y._value,
@@ -25,14 +26,15 @@ const HorizontalRangePicker: FC<HorizontalRangePickerProps> = ({
       },
       onPanResponderMove: (_, gestureState) => {
         const { dy } = gestureState;
-
         let rangeValue = 0;
+
         if (dy < 0) {
           rangeValue = Math.abs(dy);
         } else {
-          console.log(range.y._value);
           rangeValue = rangeValue - Math.abs(dy);
         }
+
+        console.log(range.y._value);
         range.setValue({ x: 0, y: rangeValue });
       },
       onPanResponderRelease: () => {

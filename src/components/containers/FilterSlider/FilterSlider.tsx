@@ -38,7 +38,7 @@ const MODE = {
 const BIN_COORDINATES = {
   bottom: 20,
   left: (width - BIN_SIZE) / 2,
-  top: height - BIN_SIZE,
+  top: height - BIN_SIZE - 20,
   right: (width + BIN_SIZE) / 2,
 };
 
@@ -88,7 +88,12 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
     ) => {
       const { moveX, moveY } = gestureState;
 
-      if (moveX >= BIN_COORDINATES.left || moveY >= BIN_COORDINATES.top) {
+      if (
+        moveX >= BIN_COORDINATES.left &&
+        moveX <= BIN_COORDINATES.right &&
+        moveY >= BIN_COORDINATES.top &&
+        moveY >= BIN_COORDINATES.bottom
+      ) {
         removeTextItem(id);
         setShowBin(false);
       }
@@ -100,7 +105,10 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
     canvas.current?.undo();
   }, [canvas]);
 
-  const Ready = (props: any) => <CustomButton iconName="check" {...props} />;
+  const Ready = useCallback(
+    (props: any) => <CustomButton iconName="check" {...props} />,
+    [],
+  );
 
   const Tools = useCallback(() => {
     switch (mode) {

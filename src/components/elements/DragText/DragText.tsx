@@ -16,8 +16,9 @@ import {
   View,
   FlatList,
 } from 'react-native';
-import { colors } from '../../../constants/UIColors';
+import Slider from '@react-native-community/slider';
 
+import { colors, white } from '../../../constants/UIColors';
 import CustomButton from '../CustomButton/CustomButton';
 import { styles } from './style';
 import { DragTextProps, InputRef } from './types';
@@ -38,6 +39,7 @@ const DragText: FC<DragTextProps> = ({
   const [writeMode, setWriteMode] = useState(true);
   const [color, setColor] = useState('white');
   const [text, setText] = useState('');
+  const [textSize, setTextSize] = useState(22);
   const [prevCoordinates, setPrevCoordinates] = useState(initialCoordinates);
 
   useEffect(() => {
@@ -135,7 +137,7 @@ const DragText: FC<DragTextProps> = ({
         <View style={[styles.wrapper, { width: writeMode ? width : 'auto' }]}>
           <TextInput
             ref={input as any}
-            style={[styles.input, { color }]}
+            style={[styles.input, { color, fontSize: textSize }]}
             multiline={true}
             autoFocus={true}
             value={text}
@@ -151,6 +153,21 @@ const DragText: FC<DragTextProps> = ({
           />
         </View>
       </Animated.View>
+      {writeMode && (
+        <View style={styles.sliderWrapper}>
+          <Slider
+            vertical={true}
+            style={styles.slider}
+            minimumValue={10}
+            maximumValue={36}
+            minimumTrackTintColor={white}
+            maximumTrackTintColor={white}
+            onValueChange={setTextSize}
+            value={textSize}
+            thumbTintColor={white}
+          />
+        </View>
+      )}
     </View>
   );
 };

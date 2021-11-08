@@ -141,10 +141,12 @@ const DragText: FC<DragTextProps> = ({
   }, [returnTextToPrevPosition]);
 
   const onTextPress = useCallback(() => {
-    if (Platform.OS === 'ios' && isDraggable) {
-      returnTextToCenter();
-      setWriteMode(true);
-      input.current.focus();
+    if (Platform.OS === 'ios') {
+      if (isDraggable) {
+        returnTextToCenter();
+        setWriteMode(true);
+        input.current.focus();
+      }
     } else {
       returnTextToCenter();
       setWriteMode(true);

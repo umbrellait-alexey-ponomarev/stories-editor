@@ -259,12 +259,22 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
               />
             </View>
             <View style={styles.colors}>
-              <FlatList data={colors} renderItem={renderColors} horizontal />
+              <FlatList
+                data={colors}
+                renderItem={renderColors}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+              />
             </View>
           </>
         )}
         <Animated.View style={[styles.filters, { bottom }]}>
-          <FlatList data={filters} renderItem={renderFilters} horizontal />
+          <FlatList
+            data={filters}
+            renderItem={renderFilters}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+          />
         </Animated.View>
         {dragText.map(item => item.Component)}
         {showBin && (

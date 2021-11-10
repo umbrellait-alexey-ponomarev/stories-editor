@@ -140,19 +140,23 @@ const DragText: FC<DragTextProps> = ({
     input.current?.blur();
   }, [returnTextToPrevPosition]);
 
-  const onTextPress = useCallback(() => {
+  const onTextPressIOS = useCallback(() => {
     if (Platform.OS === 'ios') {
       if (isDraggable) {
         returnTextToCenter();
         setWriteMode(true);
         input.current.focus();
       }
-    } else {
+    }
+  }, [isDraggable, returnTextToCenter]);
+
+  const onTextPressAndroid = useCallback(() => {
+    if (Platform.OS === 'android') {
       returnTextToCenter();
       setWriteMode(true);
       input.current.focus();
     }
-  }, [isDraggable, returnTextToCenter]);
+  }, [returnTextToCenter]);
 
   const renderColors = ({ item }: { item: string }) => {
     return (
@@ -210,9 +214,7 @@ const DragText: FC<DragTextProps> = ({
                 setIsDraggable(true);
               }
             }}
-            onPressOut={() => {
-              onTextPress();
-            }}>
+            onPressOut={onTextPressIOS}>
             <TextInput
               ref={input as any}
               style={[styles.input, { color, fontSize: textSize }]}
@@ -225,7 +227,10 @@ const DragText: FC<DragTextProps> = ({
           </TouchableOpacity>
 
           {Platform.OS === 'android' && (
-            <Pressable style={styles.touchWrapper} onPress={onTextPress} />
+            <Pressable
+              style={styles.touchWrapper}
+              onPress={onTextPressAndroid}
+            />
           )}
         </View>
       </Animated.View>

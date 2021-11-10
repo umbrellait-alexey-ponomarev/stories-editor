@@ -2,7 +2,6 @@
 import React, { FC, useCallback, useRef, useState } from 'react';
 import {
   View,
-  Image,
   TouchableOpacity,
   FlatList,
   Text,
@@ -15,11 +14,16 @@ import {
   concatColorMatrices,
 } from 'react-native-color-matrix-image-filters';
 import { SketchCanvas } from '@terrylinla/react-native-sketch-canvas';
+import {
+  GestureHandlerRootView,
+  PinchGestureHandler,
+  RotationGestureHandler,
+} from 'react-native-gesture-handler';
 
 import CustomButton from '../../elements/CustomButton/CustomButton';
 import DragText from '../../elements/DragText/DragText';
 import { colors, red, white } from '../../../constants/UIColors';
-import { filter, filters } from '../../../constants/filters';
+import { filter, filters } from '../../../constants/Filters';
 import { FIlterSliderProps, CanvasRef, DragItem } from './types';
 import { styles } from './style';
 import { BinIcon } from '../../../assets/SVG';
@@ -35,6 +39,8 @@ const MODE = {
 };
 
 const animatedValue = new Animated.Value(0);
+const scaleValue = new Animated.Value(1);
+const rotationValue = new Animated.Value(0);
 
 const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
   const [mode, setMode] = useState(MODE.INITIAL);
@@ -44,6 +50,22 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
   const [dragText, setDragText] = useState<DragItem[]>([]);
   const [showBin, setShowBin] = useState(false);
   const canvas = useRef({} as CanvasRef);
+  const imagePinch = useRef();
+  const imageRotate = useRef();
+
+  const rotate = rotationValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '180deg'],
+  });
+
+  const onPinchEvent = (evt: any) => {
+    scaleValue.setValue(evt.nativeEvent.scale);
+  };
+
+  const onRotationEvent = (evt: any) => {
+    rotationValue.setValue(evt.nativeEvent.rotation);
+    console.log(evt.nativeEvent.rotation * 100);
+  };
 
   const removeTextItem = useCallback((id: number) => {
     setDragText(prev => {
@@ -202,7 +224,10 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
           ]}
           onPress={() => setCurrentFilter(filterSet)}>
           <ColorMatrix matrix={concatColorMatrices(filterSet)}>
-            <Image style={styles.filterPreviewImage} source={imageUri} />
+            <Animated.Image
+              style={styles.filterPreviewImage}
+              source={imageUri}
+            />
           </ColorMatrix>
         </TouchableOpacity>
         <Text style={styles.filterText}>{item}</Text>
@@ -230,60 +255,80 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
   });
 
   return (
-    <>
-      <View style={styles.container}>
-        <ColorMatrix matrix={concatColorMatrices(currentFilter)}>
-          <Image style={styles.image} source={imageUri} />
-        </ColorMatrix>
-        <SketchCanvas
-          ref={canvas as any}
-          style={styles.canvas}
-          strokeColor={color}
-          strokeWidth={brushSize}
-          touchEnabled={mode === MODE.DRAW}
-        />
-        <Tools />
-        {mode === MODE.DRAW && (
-          <>
-            <View style={styles.sliderWrapper}>
-              <Slider
-                vertical={true}
-                style={styles.slider}
-                minimumValue={3}
-                maximumValue={34}
-                minimumTrackTintColor={white}
-                maximumTrackTintColor={white}
-                onValueChange={setBrushSize}
-                value={brushSize}
-                thumbTintColor={white}
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <RotationGestureHandler
+        ref={imageRotate}
+        simultaneousHandlers={imagePinch}
+        onGestureEvent={onRotationEvent}>
+        <PinchGestureHandler
+          ref={imagePinch}
+          simultaneousHandlers={imageRotate}
+          onGestureEvent={onPinchEvent}>
+          <View style={styles.container}>
+            <ColorMatrix matrix={concatColorMatrices(currentFilter)}>
+              <Animated.Image
+                style={[
+                  styles.image,
+                  { transform: [{ scale: scaleValue }, { rotate }] },
+                ]}
+                source={imageUri}
+              />
+            </ColorMatrix>
+            <View
+              style={styles.canvasWrapper}
+              pointerEvents={mode === MODE.DRAW ? 'box-none' : 'none'}>
+              <SketchCanvas
+                ref={canvas as any}
+                style={styles.canvas}
+                strokeColor={color}
+                strokeWidth={brushSize}
+                touchEnabled={mode === MODE.DRAW}
               />
             </View>
-            <View style={styles.colors}>
+            <Tools />
+            {mode === MODE.DRAW && (
+              <>
+                <View style={styles.sliderWrapper}>
+                  <Slider
+                    vertical={true}
+                    style={styles.slider}
+                    minimumValue={3}
+                    maximumValue={34}
+                    minimumTrackTintColor={white}
+                    maximumTrackTintColor={white}
+                    onValueChange={setBrushSize}
+                    value={brushSize}
+                    thumbTintColor={white}
+                  />
+                </View>
+                <View style={styles.colors}>
+                  <FlatList
+                    data={colors}
+                    renderItem={renderColors}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                  />
+                </View>
+              </>
+            )}
+            <Animated.View style={[styles.filters, { bottom }]}>
               <FlatList
-                data={colors}
-                renderItem={renderColors}
+                data={filters}
+                renderItem={renderFilters}
                 horizontal
                 showsHorizontalScrollIndicator={false}
               />
-            </View>
-          </>
-        )}
-        <Animated.View style={[styles.filters, { bottom }]}>
-          <FlatList
-            data={filters}
-            renderItem={renderFilters}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-          />
-        </Animated.View>
-        {dragText.map(item => item.Component)}
-        {showBin && (
-          <View style={styles.bin}>
-            <BinIcon color={red} width={BIN_SIZE} height={BIN_SIZE} />
+            </Animated.View>
+            {dragText.map(item => item.Component)}
+            {showBin && (
+              <View style={styles.bin}>
+                <BinIcon color={red} width={BIN_SIZE} height={BIN_SIZE} />
+              </View>
+            )}
           </View>
-        )}
-      </View>
-    </>
+        </PinchGestureHandler>
+      </RotationGestureHandler>
+    </GestureHandlerRootView>
   );
 };
 

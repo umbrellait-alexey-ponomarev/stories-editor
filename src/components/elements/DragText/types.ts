@@ -12,5 +12,4 @@ export interface DragTextProps {
     gestureState: PanResponderGestureState,
   ) => void;
   onModeChange: (mode: boolean) => void;
-  showRemoveAnimation?: Boolean;
 }

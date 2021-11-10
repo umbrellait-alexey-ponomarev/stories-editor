@@ -34,7 +34,6 @@ const DragText: FC<DragTextProps> = ({
   onMoveRealise,
   onModeChange,
   onMove = () => {},
-  showRemoveAnimation = false,
 }) => {
   const [writeMode, setWriteMode] = useState(true);
   const [color, setColor] = useState('white');
@@ -165,12 +164,6 @@ const DragText: FC<DragTextProps> = ({
       </TouchableOpacity>
     );
   };
-
-  useEffect(() => {
-    if (showRemoveAnimation) {
-      removeAnimation();
-    }
-  }, [removeAnimation, showRemoveAnimation]);
 
   useEffect(() => {
     onModeChange(writeMode);

@@ -2,7 +2,7 @@ import { Dimensions } from 'react-native';
 
 export const { width, height } = Dimensions.get('window');
 
-export const BIN_SIZE = 40;
+export const BIN_SIZE = 50;
 
 export const BIN_COORDINATES = {
   bottom: 20,

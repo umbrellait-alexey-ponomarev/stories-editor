@@ -1,11 +1,11 @@
 import React from 'react';
 import { SafeAreaView, StyleSheet } from 'react-native';
-import { FIlterSlider } from './src/components/containers/FilterSlider';
+import { HomeScreen } from './src/screens/HomeScreen';
 
 const App = () => {
   return (
     <SafeAreaView style={styles.container}>
-      <FIlterSlider imageUri={require('./src/assets/img/image.jpeg')} />
+      <HomeScreen />
     </SafeAreaView>
   );
 };

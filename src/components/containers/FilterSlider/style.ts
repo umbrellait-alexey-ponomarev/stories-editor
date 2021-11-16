@@ -8,6 +8,7 @@ export const styles = StyleSheet.create({
   container: {
     width: '100%',
     height: '100%',
+    backgroundColor: 'transparent',
   },
   canvasWrapper: {
     position: 'absolute',
@@ -113,4 +114,13 @@ export const styles = StyleSheet.create({
     transform: [{ rotate: '-90deg' }],
   },
   slider: { width: 150, height: 30 },
+  backgroundImage: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
 });

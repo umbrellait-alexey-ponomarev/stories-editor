@@ -1,7 +1,5 @@
-import { ImageRequireSource } from 'react-native';
-
 export interface FIlterSliderProps {
-  imageUri: ImageRequireSource;
+  imageUri: string;
 }
 
 export interface CanvasRef {

@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "android": "react-native run-android",
+    "android-release": "react-native --variant=release run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
@@ -19,6 +20,7 @@
     "react-native-color-matrix-image-filters": "^5.2.10",
     "react-native-draggable": "^3.3.0",
     "react-native-gesture-handler": "^1.10.3",
+    "react-native-image-picker": "^4.2.0",
     "react-native-svg": "^12.1.1",
     "react-native-swipe-gestures": "^1.0.5"
   },

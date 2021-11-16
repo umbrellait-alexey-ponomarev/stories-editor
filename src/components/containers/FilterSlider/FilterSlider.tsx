@@ -8,6 +8,7 @@ import {
   Animated,
   PanResponderGestureState,
   GestureResponderEvent,
+  Image,
 } from 'react-native';
 import {
   ColorMatrix,
@@ -226,7 +227,7 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
           <ColorMatrix matrix={concatColorMatrices(filterSet)}>
             <Animated.Image
               style={styles.filterPreviewImage}
-              source={imageUri}
+              source={{ uri: imageUri }}
             />
           </ColorMatrix>
         </TouchableOpacity>
@@ -266,13 +267,22 @@ const FIlterSlider: FC<FIlterSliderProps> = ({ imageUri }) => {
           onGestureEvent={onPinchEvent}>
           <View style={styles.container}>
             <ColorMatrix matrix={concatColorMatrices(currentFilter)}>
-              <Animated.Image
-                style={[
-                  styles.image,
-                  { transform: [{ scale: scaleValue }, { rotate }] },
-                ]}
-                source={imageUri}
-              />
+              <>
+                <Image
+                  style={styles.backgroundImage}
+                  source={require('../../../assets/img/white-background.jpeg')}
+                  resizeMode="cover"
+                />
+                <ColorMatrix matrix={concatColorMatrices(currentFilter)}>
+                  <Animated.Image
+                    style={[
+                      styles.image,
+                      { transform: [{ scale: scaleValue }, { rotate }] },
+                    ]}
+                    source={{ uri: imageUri }}
+                  />
+                </ColorMatrix>
+              </>
             </ColorMatrix>
             <View
               style={styles.canvasWrapper}
